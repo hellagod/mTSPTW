@@ -11,8 +11,10 @@ SOLVER_PATH = 'C:\\glpk-4.65\\w64\\glpsol.exe'
 
 
 class MTSPTWModel:
-    def __init__(self, n, m, costs, times, time_windows, big_M):
-        self.solver = SolverFactory(SOLVER, executable=SOLVER_PATH)
+    def __init__(self, n, m, costs, times, time_windows, big_M, timelimit=False):
+        self.solver = SolverFactory(SOLVER, tee=True, executable=SOLVER_PATH)
+        if timelimit:
+            self.solver.options = {'tmlim': timelimit, 'mipgap': 0.0001}
         self.n = n
         self.m = m
         self.costs = costs
@@ -89,9 +91,7 @@ class MTSPTWModel:
 
     def solve(self):
         self.result = self.solver.solve(self.model)
-
-        if not (self.result.solver.status == SolverStatus.ok and
-                self.result.solver.termination_condition == TerminationCondition.optimal):
+        if self.result.solver.termination_condition == TerminationCondition.infeasible:
             raise Exception(TerminationCondition.infeasible)
         self.routes = {k: [] for k in self.model.K}
         for k in self.model.K:

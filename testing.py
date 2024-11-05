@@ -1,4 +1,3 @@
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from models.base_model import MTSPTWModel
 from models.updated_model import MTSPTWShortModel
 from utils.utils import timing, create_test_data
