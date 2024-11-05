@@ -4,11 +4,13 @@ from pyomo.environ import ConcreteModel, minimize, Binary, RangeSet, Objective, 
 from pyomo.opt import SolverFactory, SolverStatus, TerminationCondition
 import random
 
+from utils.utils import generate_pair
+
 SOLVER = 'glpk'
 SOLVER_PATH = 'C:\\glpk-4.65\\w64\\glpsol.exe'
 
 
-class MultiDepotVehicleRoutingModel:
+class MTSPTWModel:
     def __init__(self, n, m, costs, times, time_windows, big_M):
         self.solver = SolverFactory(SOLVER, executable=SOLVER_PATH)
         self.n = n
@@ -126,11 +128,6 @@ class MultiDepotVehicleRoutingModel:
 
 
 
-def generate_pair(a,b):
-    while True:
-        number = random.randint(a,b)  # Укажите диапазон целых чисел
-        yield number
-        yield number
 
 
 
@@ -144,7 +141,7 @@ if __name__ == "__main__":
     time_windows = [None, *[(times[0][i + 1] + next(gen), times[0][i + 1] + next(gen) + delta) for i in range(n)]]
     big_M = 10000
 
-    routing_model = MultiDepotVehicleRoutingModel(n, m, costs, times, time_windows, big_M)
+    routing_model = MTSPTWModel(n, m, costs, times, time_windows, big_M)
     routing_model.solve()
     output = routing_model.output()
     routing_model.plot()
