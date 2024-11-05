@@ -1,5 +1,3 @@
-from os import times
-
 import networkx as nx
 from matplotlib import pyplot as plt
 from pyomo.environ import ConcreteModel, minimize, Binary, RangeSet, Objective, Var, Constraint, NonNegativeReals
