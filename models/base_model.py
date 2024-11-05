@@ -4,7 +4,7 @@ from pyomo.environ import ConcreteModel, minimize, Binary, RangeSet, Objective, 
 from pyomo.opt import SolverFactory, SolverStatus, TerminationCondition
 import random
 
-from utils.utils import generate_pair
+from utils.utils import create_test_data
 
 SOLVER = 'glpk'
 SOLVER_PATH = 'C:\\glpk-4.65\\w64\\glpsol.exe'
@@ -127,21 +127,10 @@ class MTSPTWModel:
         plt.show()
 
 
-
-
-
-
 if __name__ == "__main__":
-    n = 5
-    m = 5
-    gen = generate_pair(1, 50)
-    costs = {(i, j): random.randint(1, 100) for i in range(n + 1) for j in range(n + 1) if i != j}
-    times = [[random.randint(1, 100) if i!=j else 0 for j in range(n + 1)] for i in range(n + 1)]
-    delta = random.randint(1, 35)
-    time_windows = [None, *[(times[0][i + 1] + next(gen), times[0][i + 1] + next(gen) + delta) for i in range(n)]]
-    big_M = 10000
+    test = create_test_data(5, 5)
 
-    routing_model = MTSPTWModel(n, m, costs, times, time_windows, big_M)
+    routing_model = MTSPTWModel(**test)
     routing_model.solve()
     output = routing_model.output()
     routing_model.plot()
