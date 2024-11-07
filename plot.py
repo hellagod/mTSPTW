@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 
 
-def load_csv_time_matrix(csv_name):
+def load_csv_matrix(csv_name):
     with open(csv_name, mode='r') as file:
         reader = csv.reader(file)
         matrix_loaded = []
@@ -15,14 +15,15 @@ def load_csv_time_matrix(csv_name):
             matrix_loaded.append(row_parsed)
         return matrix_loaded
 
+
 def plot_2d(matr_timings, plot_title='', x_axis='x', y_axis='y',
-            legend_1='1', legend_2='2'):
-    zero_index_values = [pair[0] for row in matr_timings for pair in row]
-    first_index_values = [pair[1] for row in matr_timings for pair in row]
+            legend_1='1', legend_2='2', is_matrix=True):
+    first_model_values = [pair[0] for row in matr_timings for pair in row] if is_matrix else matr_timings[0]
+    second_model_values = [pair[1] for row in matr_timings for pair in row] if is_matrix else matr_timings[1]
 
     plt.figure(figsize=(9, 7))
-    plt.plot(zero_index_values, label=legend_1, marker='o')
-    plt.plot(first_index_values, label=legend_2, marker='o')
+    plt.plot(first_model_values, label=legend_1, marker='o')
+    plt.plot(second_model_values, label=legend_2, marker='o')
     plt.title(plot_title)
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
@@ -64,8 +65,10 @@ def plot_3d_interpolation(matr_timings, plot_title='',
     ax.scatter(x_vals, y_vals, z1_vals, color='b', label=subtitle_1_1, marker='o')
     ax.scatter(x_vals, y_vals, z2_vals, color='r', label=subtitle_2_1, marker='o')
 
-    ax.plot_surface(grid_x, grid_y, grid_z1, color='blue', alpha=0.5, label=subtitle_1_2)
-    ax.plot_surface(grid_x, grid_y, grid_z2, color='red', alpha=0.5, label=subtitle_2_2)
+    ax.plot_surface(grid_x, grid_y, grid_z1, color='blue', alpha=1, label=subtitle_1_2,
+                    antialiased=False, rstride=1, cstride=1, linewidth=0.5)
+    ax.plot_surface(grid_x, grid_y, grid_z2, color='red', alpha=1, label=subtitle_2_2,
+                    antialiased=False, rstride=1, cstride=1, linewidth=0.5)
 
     ax.set_xlabel(x_title)
     ax.set_ylabel(y_title)
@@ -77,26 +80,3 @@ def plot_3d_interpolation(matr_timings, plot_title='',
     manager.resize(2000, 1400)
 
     return plt
-
-
-matr_timings = load_csv_time_matrix("time_matrix_n_4-6_m_2-7.csv")
-
-# 2d график времени для точного решения (небольшая размерность данных)
-plt_0 = plot_2d(matr_timings, plot_title='Время счета',
-                x_axis='Размерность входных данных (число клиентов (n) + число коммивояжеров (m) )',
-                y_axis='Время (в секундах)',
-                legend_1='Результаты модели с общим графом коммивояжеров',
-                legend_2='Результаты модели с отдельными графами коммивояжеров')
-
-plt_0.show()
-
-# 3d график времени для точного решения (небольшая размерность данных)
-plt_1 = plot_3d_interpolation(matr_timings,
-                              plot_title='3D-график времени счета первой и второй моделей (с интерполяцией)',
-                              x_title='Число клиентов (n)', y_title='Число коммивояжеров (m)',
-                              z_title='Время счета (в секундах)',
-                              subtitle_1_1='Результаты модели с общим графом коммивояжеров',
-                              subtitle_2_1='Результаты модели с отдельными графами коммивояжеров',
-                              subtitle_1_2='Интерполированная поверхность для модели с общим графом',
-                              subtitle_2_2='Интерполированная поверхность для модели с отдельными графами')
-plt_1.show()

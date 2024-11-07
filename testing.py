@@ -11,10 +11,10 @@ m = (2,7)
 matrix = [[(0, 0)] * (m[1] - m[0] + 1) for _ in range(n[0], n[1] + 1)]
 
 
-def compute_for_pair(i, j):
+def compute_for_pair(i, j, tl=None):
     test = create_test_data(i, j)
-    model = MTSPTWModel(**test)
-    short_model = MTSPTWShortModel(**test)
+    model = MTSPTWModel(**test, timelimit=tl)
+    short_model = MTSPTWShortModel(**test, timelimit=tl)
     try:
         t1, r1 = timing(model.solve)
         output1 = model.output()
