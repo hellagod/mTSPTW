@@ -2,11 +2,13 @@ from models.base_model import MTSPTWModel
 from models.updated_model import MTSPTWShortModel, my_sort_route
 from utils.utils import timing, create_test_data
 
+import json
+import csv
 import numpy as np
 
-n = (4,7)
-m = (4,7)
-matrix = [[0] * (m[1] - m[0] + 1) for _ in range(n[0], n[1] + 1)]
+n = (4,6)
+m = (2,7)
+matrix = [[(0, 0)] * (m[1] - m[0] + 1) for _ in range(n[0], n[1] + 1)]
 
 
 def compute_for_pair(i, j):
@@ -38,7 +40,8 @@ def compute_for_pair(i, j):
 
 
 if __name__ == '__main__':
-    args = [(i, j) for i in range(m[0], m[1] + 1) for j in range(n[0], n[1] + 1)]
+    results_dict = {}
+    args = [(i, j) for j in range(m[0], m[1] + 1) for i in range(n[0], n[1] + 1)]
 
     for i, j in args:
         result = compute_for_pair(i, j)
@@ -46,6 +49,7 @@ if __name__ == '__main__':
         if 'error' in result:
             print(f"Error at ({i}, {j}): {result['error']}")
         else:
+            print(f"\ni={i}\tj={j}")
             print(result['output1'])
             print(result['output2'])
             print(result['t1'], result['t2'])
@@ -56,6 +60,18 @@ if __name__ == '__main__':
             print(result['variables_short_model'])
             print(result['constraints_model'])
             print(result['constraints_short_model'])
+            results_dict[f'({i}, {j})'] = result
+
+    json_name = f'results_n_{n[0]}-{n[1]}_m_{m[0]}-{m[1]}.json'
+    with open(json_name, 'w') as f:
+        json.dump(results_dict, f, indent=4)
+
+    csv_name = f'time_matrix_n_{n[0]}-{n[1]}_m_{m[0]}-{m[1]}.csv'
+    with open(csv_name, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        for row in matrix:
+            row_str = [str(cell) for cell in row]
+            writer.writerow(row_str)
 
 print(matrix)
 print(np.array_str(np.array(matrix), precision=2, suppress_small=True))
