@@ -3,8 +3,23 @@ from models.base_model import MTSPTWModel
 from utils.utils import create_test_data
 
 
-class MTSPTWShortModel(MTSPTWModel):
+# вынесла за класс т.к. в kwargs на аргумент self.my_sort_route питон ругался
+def my_sort_route(self, routes, k):
+    # просто сопоставляем по порядку, т.к. в этой модели затираются потенциалы
+    sorted_routes = [routes[0]]
+    my_routes = routes[1:]
 
+    while my_routes:
+        for i, (start, end) in enumerate(my_routes):
+            if sorted_routes[-1][1] == start:
+                sorted_routes.append((start, end))
+                my_routes.pop(i)
+                break
+
+    return sorted_routes
+
+
+class MTSPTWShortModel(MTSPTWModel):
     def _init_vars(self):
         model = self.model
         model.V = RangeSet(0, self.n)
@@ -69,7 +84,7 @@ if __name__ == "__main__":
     test = create_test_data(5, 5)
 
     routing_model = MTSPTWShortModel(**test)
-    routing_model.solve()
+    routing_model.solve(sorting=my_sort_route)
     print(routing_model.model.ul.extract_values())
     output = routing_model.output()
     print(output)

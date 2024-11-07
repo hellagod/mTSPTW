@@ -1,6 +1,8 @@
 from models.base_model import MTSPTWModel
-from models.updated_model import MTSPTWShortModel
+from models.updated_model import MTSPTWShortModel, my_sort_route
 from utils.utils import timing, create_test_data
+
+import numpy as np
 
 n = (4,7)
 m = (4,7)
@@ -15,7 +17,7 @@ def compute_for_pair(i, j):
         t1, r1 = timing(model.solve)
         output1 = model.output()
 
-        t2, r2 = timing(short_model.solve)
+        t2, r2 = timing(short_model.solve, sorting=my_sort_route)
         output2 = short_model.output()
 
         results = {
@@ -41,22 +43,19 @@ if __name__ == '__main__':
     for i, j in args:
         result = compute_for_pair(i, j)
 
-        # Check if there was an error
         if 'error' in result:
             print(f"Error at ({i}, {j}): {result['error']}")
         else:
-            # Print the model outputs and timings
             print(result['output1'])
             print(result['output2'])
             print(result['t1'], result['t2'])
 
-            # Store timings in matrix
             matrix[i - n[0]][j - m[0]] = (result['t1'], result['t2'])
 
-            # Print variable and constraint counts
             print(result['variables_model'])
             print(result['variables_short_model'])
             print(result['constraints_model'])
             print(result['constraints_short_model'])
 
 print(matrix)
+print(np.array_str(np.array(matrix), precision=2, suppress_small=True))

@@ -7,7 +7,10 @@ import random
 from utils.utils import create_test_data
 
 SOLVER = 'glpk'
-SOLVER_PATH = 'C:\\glpk-4.65\\w64\\glpsol.exe'
+# Сашин солвер
+# SOLVER_PATH = 'C:\\glpk-4.65\\w64\\glpsol.exe'
+# Асин солвер
+SOLVER_PATH = '/opt/homebrew/Cellar/glpk/5.0/bin/glpsol'
 
 
 class MTSPTWModel:
@@ -89,16 +92,25 @@ class MTSPTWModel:
         model.time_windows_2 = Constraint(model.V - {0}, model.K, rule=time_window_constraint_2)
         model.depot_start = Constraint(model.K, rule=depot_start_constraint)
 
-    def solve(self):
+    def sort_route(self, routes, k):
+        # cортируем по потенциалам
+        sorted_routes = sorted(routes, key=lambda edge: self.model.u[edge[0], k].value)
+        return sorted_routes
+
+    def solve(self, sorting=sort_route):
         self.result = self.solver.solve(self.model)
+
         if self.result.solver.termination_condition == TerminationCondition.infeasible:
             raise Exception(TerminationCondition.infeasible)
+
         self.routes = {k: [] for k in self.model.K}
         for k in self.model.K:
             for i in self.model.V:
                 for j in self.model.V - {0}:
                     if i != j and self.model.x[i, j, k].value and self.model.x[i, j, k].value > 0.5:
                         self.routes[k].append((i, j))
+            if self.routes[k]:
+                self.routes[k] = sorting(self, self.routes[k], k)
 
     def output(self):
         return {
@@ -133,4 +145,5 @@ if __name__ == "__main__":
     routing_model = MTSPTWModel(**test)
     routing_model.solve()
     output = routing_model.output()
+    print(output)
     routing_model.plot()
